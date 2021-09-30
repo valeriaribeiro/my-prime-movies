@@ -13,18 +13,21 @@ import {
 } from './styles';
 
 import { Feather } from '@expo/vector-icons';
-import { ScrollView } from 'react-native';
+import { ActivityIndicator, ScrollView } from 'react-native';
 import SliderItem from '../../components/SliderItem';
 import api, { key } from '../../services/api';
-import { getListMovies } from '../../utils/movie';
+import { getListMovies, randonMovies } from '../../utils/movie';
 
 function Home() {
   const [nowMovies, setNowMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
+  const [bannerMovie, setBannerMovie] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isActive = true;
+    const stopRequest = new AbortController();
 
     async function getMovies() {
       const [nowData, popularData, topData] = await Promise.all([
@@ -52,19 +55,36 @@ function Home() {
           },
         }),
       ]);
-      
-      const nowList = getListMovies(5, nowData.data.results);
-      const popularList = getListMovies(10, popularData.data.results);
-      const topList = getListMovies(5, topData.data.results);
 
-      setNowMovies(nowList);
-      setPopularMovies(popularList);
-      setTopMovies(topList);
+      if (isActive) {
+        const nowList = getListMovies(5, nowData.data.results);
+        const popularList = getListMovies(10, popularData.data.results);
+        const topList = getListMovies(5, topData.data.results);
+        
+        setBannerMovie(nowData.data.results[randonMovies(nowData.data.results)])
+
+        setNowMovies(nowList);
+        setPopularMovies(popularList);
+        setTopMovies(topList);
+        setLoading(false);
+      }
     }
 
     getMovies();
+
+    return () => {
+      isActive = false;
+      stopRequest.abort();
+    };
   }, []);
 
+  if (loading) {
+    return (
+      <Container>
+        <ActivityIndicator size="large" color="#fff" />
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -87,9 +107,7 @@ function Home() {
         <BannerButton activeOpacity={0.9} onPress={() => alert("TESTE")}>
           <Banner
             resizeMethod="resize"
-            source={{
-              uri: "https://images.unsplash.com/photo-1461609027498-7c0524aba788?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1632&q=80",
-            }}
+            source={{uri: `https://image.tmdb.org/t/p/original/${bannerMovie.poster_path}`}}
           />
         </BannerButton>
 

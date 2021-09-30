@@ -9,3 +9,8 @@ export function getListMovies(size, movies) {
 
     return popularMovies;
 }
+
+// Gerar um número randômico com base na lista de filmes
+export function randonMovies(movies) {
+    return Math.floor(Math.random() * movies.length);
+}

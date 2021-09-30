@@ -7,8 +7,7 @@ function SliderItem({ data }) {
   return (
     <Container activeOpacity={0.8}>
       <BannerItem
-        source={{
-          uri: `https://image.tmdb.org/t/p/original/${data.poster_path}`}}
+        source={{uri: `https://image.tmdb.org/t/p/original/${data.poster_path}`}}
       />
 
       <Title numberOfLines={1}>{data.title}</Title>
